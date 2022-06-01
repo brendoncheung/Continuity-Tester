@@ -1,16 +1,14 @@
 #include <Arduino.h>
 
-int latch_pin = 9;
 int data_pin = 8;
-int clock_pin = 7;
-int reset_pin = 6;
+int latch_pin = 9;
+int clock_pin = 10;
+int reset_pin = 11;
 
 void reset_SIPO_register();
 void shift_SIPO(byte sequence);
-void clear_zero_SIPO();
 
 void setup() {
-  // put your setup code here, to run once:
   pinMode(latch_pin, OUTPUT);
   pinMode(data_pin, OUTPUT);
   pinMode(clock_pin, OUTPUT);
@@ -19,10 +17,13 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:  
   reset_SIPO_register();
-  for (int i = 1; i < 8; i++) {
-    shift_SIPO(pow(2, i));
+  int position = 1;
+
+  for (int i = 0; i < 8; i++) {
+    int into = position << i;
+    shift_SIPO(into);
+    Serial.println(into, BIN);
     delay(500);
   }
 }
@@ -34,13 +35,17 @@ void reset_SIPO_register() {
 
 void shift_SIPO(byte sequence) {
   digitalWrite(latch_pin, LOW);
-  shiftOut(data_pin, clock_pin, MSBFIRST, sequence);
+  shiftOut(data_pin, clock_pin, LSBFIRST, sequence);
   digitalWrite(latch_pin, HIGH);
 }
 
-void clear_zero_SIPO() {
-  digitalWrite(latch_pin, LOW);
-  shiftOut(data_pin, clock_pin, MSBFIRST, 0x00);
-  digitalWrite(latch_pin, HIGH);
-}
 
+
+
+  // int position = 1;
+  // for (int i = 0; i < 8; i++) {
+  //   int into = position << i;
+  //   shift_SIPO(0xFF);
+  //   Serial.println(into);
+  //   delay(500);
+  // }
